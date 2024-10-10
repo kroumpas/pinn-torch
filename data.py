@@ -2,7 +2,6 @@ from typing import List
 from pathlib import Path
 import random
 import json
-
 import numpy as np
 import scipy
 import torch
@@ -24,11 +23,9 @@ class PinnDataset(Dataset):
         return {key: self.examples[idx, i] for i, key in enumerate(headers)}
 
 
-def load_jsonl(path, skip_first_lines: int = 0):
-    with open(path, "r") as f:
-        for _ in range(skip_first_lines):
-            next(f)
-        return [json.loads(line) for line in f]
+def load_json(path):
+    with open(path, 'r') as f:
+        return json.load(f)  # Load entire file content as a single JSON object
 
 
 def dump_json(path, data):
@@ -37,7 +34,7 @@ def dump_json(path, data):
 
 
 def get_dataset(data_path: Path):
-    data = load_jsonl(data_path, skip_first_lines=1)
+    data = load_json(data_path)
     random.shuffle(data)
 
     # It's weird that the test data is a subset of train data, but
@@ -58,7 +55,7 @@ def get_dataset(data_path: Path):
 
 
 def get_orig_dataset():
-    path = Path("../PINNs/main/data/cylinder_nektar_wake.mat")
+    path = Path(r"../your/path/data/data.json")  # For whatever reason it needs raw path. This is however for the "original dataset" which doesn't concern us rn.
     data = scipy.io.loadmat(path)
     X_star = data["X_star"]  # N x 2
     x = X_star[:, 0:1]
@@ -103,3 +100,4 @@ def get_orig_dataset():
     train_data = PinnDataset(train_data)
     test_data = PinnDataset(test_data)
     return train_data, test_data, min_x, max_x
+
